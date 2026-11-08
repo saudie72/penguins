@@ -209,6 +209,16 @@ footer {display:none !important;}
 THEME = gr.themes.Soft(primary_hue="sky", secondary_hue="orange", neutral_hue="slate",
                        radius_size="lg", font=[gr.themes.GoogleFont("Nunito"), "sans-serif"])
 
+# The colours above are designed for a light page, so keep it light even when the
+# visitor's browser is in dark mode (otherwise Gradio's dark theme mixes with them).
+FORCE_LIGHT = """
+() => {
+  const light = () => document.body.classList.remove('dark');
+  light();
+  new MutationObserver(light).observe(document.body, {attributes: true, attributeFilter: ['class']});
+}
+"""
+
 start = pick_species("Adelie")
 
 with gr.Blocks(title="Penguin Scale") as demo:
@@ -250,4 +260,4 @@ with gr.Blocks(title="Penguin Scale") as demo:
     demo.load(run, inputs, [result, plot])
 
 if __name__ == "__main__":
-    demo.launch(theme=THEME, css=CSS)
+    demo.launch(theme=THEME, css=CSS, js=FORCE_LIGHT)
