@@ -1,5 +1,7 @@
 tensorflow>=2.18
 keras>=3.10
 numpy
+pandas
+matplotlib
 gradio
 spaces

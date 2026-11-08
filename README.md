@@ -23,4 +23,10 @@ Step 15 of the Palmer Penguins homework: the Keras regression network from the n
 - `app.py` — one input per column, prefilled with the typical penguin, plus a Predict button;
   the prediction is un-scaled back to grams (`pred * y_std + y_mean`)
 
+- `penguins.csv` — the cleaned Palmer Penguins table (342 rows), used for the scatter plot
+
+The app ("Penguin Scale") has species buttons with a drawn picture of each penguin, sliders for the
+three measurements, a result card with a weight bar, and a scatter plot of all 342 penguins with a
+star for yours. Picking a species moves the sliders to that species' averages.
+
 Inputs: species, island, bill_length_mm, bill_depth_mm, flipper_length_mm, sex.
