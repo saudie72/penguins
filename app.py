@@ -1,51 +1,49 @@
-"""Predict a Palmer penguin's body mass (g) with the Keras network from the notebook (Steps 26-34)."""
+"""Predict a Palmer penguin's body mass (g) with the Keras network from the notebook (Steps 26-34).
+
+prep.json holds the numbers learned by the notebook's prep step (prep.joblib): fill values,
+scaling and category lists, so the app can encode a row exactly as during training.
+"""
+import json
 import os
 
 os.environ.setdefault("KERAS_BACKEND", "tensorflow")
 
 import gradio as gr
-import joblib
 import keras
 import numpy as np
-import pandas as pd
 
 model = keras.models.load_model("model.keras")
-saved = joblib.load("prep.joblib")
+with open("prep.json") as f:
+    P = json.load(f)
 
-prep = saved["prep"]
-problem = saved["problem"]
-labels = saved["labels"]
-y_mean, y_std = saved["y_mean"], saved["y_std"]
-columns = saved["columns"]
-typical = saved["typical"]
+NUM, CAT = P["numbers"], P["categories"]
+columns, typical = P["columns"], P["typical"]
 
-# Which columns are numbers and which are categories, taken from the fitted ColumnTransformer
-num_cols, cat_choices = [], {}
-for name, pipe, cols in prep.transformers_:
-    if name == "numbers":
-        num_cols = list(cols)
-    elif name == "categories":
-        encoder = pipe.steps[-1][1]
-        cat_choices = {c: [str(v) for v in cats] for c, cats in zip(cols, encoder.categories_)}
+
+def encode(row):
+    """Same as prep.transform: median-fill + standard-scale numbers, then one-hot categories."""
+    parts = []
+    for col, fill, mean, scale in zip(NUM["columns"], NUM["fill"], NUM["mean"], NUM["scale"]):
+        v = row.get(col)
+        v = fill if v is None or (isinstance(v, float) and np.isnan(v)) else float(v)
+        parts.append((v - mean) / scale)
+    for col, fill, values in zip(CAT["columns"], CAT["fill"], CAT["values"]):
+        v = row.get(col)
+        v = fill if v in (None, "") else str(v)
+        parts.extend(1.0 if v == x else 0.0 for x in values)   # unknown value → all zeros
+    return np.array([parts], dtype="float32")
 
 
 def predict(*values):
-    row = pd.DataFrame([dict(zip(columns, values))])
-    for c in num_cols:
-        row[c] = pd.to_numeric(row[c], errors="coerce")
-    out = model.predict(prep.transform(row).astype("float32"), verbose=0)
-    if problem == "regression":
-        return f"{float(out.ravel()[0] * y_std + y_mean):,.0f} g"
-    if problem == "binary":
-        idx = (out.ravel() > 0.5).astype(int)
-    else:
-        idx = np.argmax(out, axis=1)
-    return str(labels.inverse_transform(idx)[0])
+    out = model.predict(encode(dict(zip(columns, values))), verbose=0)
+    return f"{float(out.ravel()[0]) * P['y_std'] + P['y_mean']:,.0f} g"
 
 
+num_cols = set(NUM["columns"])
+choices = dict(zip(CAT["columns"], CAT["values"]))
 fields = [
     gr.Number(value=round(float(typical[c]), 2), label=c) if c in num_cols
-    else gr.Dropdown(choices=cat_choices.get(c, [str(typical[c])]), value=str(typical[c]), label=c)
+    else gr.Dropdown(choices=choices[c], value=str(typical[c]), label=c)
     for c in columns
 ]
 
@@ -55,7 +53,7 @@ demo = gr.Interface(
     outputs=gr.Textbox(label="Predicted body_mass_g"),
     title="Predict a penguin's body mass",
     description="Palmer Penguins · Keras network (64 → dropout 20% → 32 → 1). "
-                "Every box starts at a typical penguin; change the values and click Submit.",
+                "Every box starts at a typical penguin; change the values and click Predict.",
     submit_btn="Predict",
     flagging_mode="never",
 )

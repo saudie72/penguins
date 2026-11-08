@@ -1,0 +1,71 @@
+{
+  "problem": "regression",
+  "y_mean": 4230.334728033473,
+  "y_std": 824.019211302515,
+  "columns": [
+    "species",
+    "island",
+    "bill_length_mm",
+    "bill_depth_mm",
+    "flipper_length_mm",
+    "sex"
+  ],
+  "typical": {
+    "species": "Adelie",
+    "island": "Biscoe",
+    "bill_length_mm": 44.45,
+    "bill_depth_mm": 17.3,
+    "flipper_length_mm": 197.0,
+    "sex": "male"
+  },
+  "numbers": {
+    "columns": [
+      "bill_length_mm",
+      "bill_depth_mm",
+      "flipper_length_mm"
+    ],
+    "fill": [
+      44.5,
+      17.3,
+      197.0
+    ],
+    "mean": [
+      43.980753138075315,
+      17.113807531380754,
+      201.17573221757323
+    ],
+    "scale": [
+      5.430169659321645,
+      1.9396808122297853,
+      14.18978052422877
+    ]
+  },
+  "categories": {
+    "columns": [
+      "species",
+      "island",
+      "sex"
+    ],
+    "fill": [
+      "Adelie",
+      "Biscoe",
+      "female"
+    ],
+    "values": [
+      [
+        "Adelie",
+        "Chinstrap",
+        "Gentoo"
+      ],
+      [
+        "Biscoe",
+        "Dream",
+        "Torgersen"
+      ],
+      [
+        "female",
+        "male"
+      ]
+    ]
+  }
+}
