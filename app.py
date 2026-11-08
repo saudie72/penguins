@@ -8,6 +8,7 @@ import os
 
 os.environ.setdefault("KERAS_BACKEND", "tensorflow")
 
+import spaces  # Hugging Face ZeroGPU helper; import it before the ML libraries
 import gradio as gr
 import keras
 import numpy as np
@@ -32,6 +33,14 @@ def encode(row):
         v = fill if v in (None, "") else str(v)
         parts.extend(1.0 if v == x else 0.0 for x in values)   # unknown value → all zeros
     return np.array([parts], dtype="float32")
+
+
+@spaces.GPU
+def zerogpu_check():
+    """ZeroGPU Spaces refuse to start without at least one @spaces.GPU function.
+    This small network runs fine on the CPU, so predict() below never needs the GPU
+    and this function is never called."""
+    return None
 
 
 def predict(*values):
