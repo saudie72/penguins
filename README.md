@@ -14,7 +14,8 @@ pinned: false
 Step 15 of the Palmer Penguins homework: the Keras regression network from the notebook
 (Steps 26–34), served as a permanent Gradio app on Hugging Face Spaces.
 
-- `model.keras` — the network (Keras 3.13)
+- `model.keras` — the network, saved with Keras 3.13; the empty `quantization_config` entries were
+  removed from its config so it also loads on Keras 3.12 (the newest version for Python 3.10)
 - `prep.json` — the numbers from the notebook's `prep.joblib` (fill values, scaling, category lists,
   `y_mean`, `y_std`, `columns`, `typical`) as plain text, so the app needs no scikit-learn.
   `app.py` encodes rows exactly like `prep.transform` (checked on all 342 penguins: identical).
